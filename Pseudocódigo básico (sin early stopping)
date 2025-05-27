@@ -1,0 +1,32 @@
+Función EntrenarEnsambleSecuencial(X, y, n_estimators, sample_size, lr, seed):
+    Inicializar lista Modelos vacía
+    pred_actual ← vector de ceros del mismo tamaño que y
+    rng ← inicializar generador aleatorio con seed
+    N ← número de filas de X
+
+    Para m = 1 hasta n_estimators:
+        // 1) Calcular residuo
+        residuo ← y − pred_actual
+
+        // 2) Muestrear subset sin reemplazo
+        k ← floor(sample_size × N)
+        idx_train ← rng.choice(N, k, replace=False)
+        X_sub ← X[idx_train]
+        y_sub ← residuo[idx_train]
+
+        // 3) Entrenar modelo en el residuo
+        modelo_m ← clonar(estimator_base)
+        modelo_m.fit(X_sub, y_sub)
+        añadir modelo_m a Modelos
+
+        // 4) Actualizar predicción acumulada
+        pred_actual ← pred_actual + lr × modelo_m.predict(X)
+
+    Devolver Modelos
+
+
+Función PredecirEnsamble(Modelos, X, lr):
+    pred_final ← vector de ceros con longitud = número de filas de X
+    Para cada modelo en Modelos:
+        pred_final ← pred_final + lr × modelo.predict(X)
+    Devolver pred_final
