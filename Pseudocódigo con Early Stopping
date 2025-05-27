@@ -1,0 +1,52 @@
+Función EntrenarEnsambleConParadaTemprana(X, y,
+                                           n_estimators,
+                                           sample_size,
+                                           lr,
+                                           patience,
+                                           seed):
+    Inicializar lista Modelos vacía
+    pred_actual ← vector de ceros del mismo tamaño que y
+    best_error ← ∞
+    no_improve ← 0
+    rng ← inicializar generador aleatorio con seed
+    N ← número de filas de X
+
+    Para m = 1 hasta n_estimators:
+        residuo ← y − pred_actual
+
+        // Muestreo sin reemplazo
+        k ← floor(sample_size × N)
+        idx_train ← rng.choice(N, k, replace=False)
+        idx_hold ← todos los índices excepto idx_train
+
+        X_sub, y_sub   ← X[idx_train], residuo[idx_train]
+        X_hold, y_hold ← X[idx_hold], y[idx_hold]
+
+        // Entrenar el modelo débil
+        modelo_m ← clonar(estimator_base)
+        modelo_m.fit(X_sub, y_sub)
+        añadir modelo_m a Modelos
+
+        // Actualizar predicción acumulada
+        pred_actual ← pred_actual + lr × modelo_m.predict(X)
+
+        // Evaluar en hold-out
+        pred_hold ← vector de ceros de longitud |idx_hold|
+        Para cada modelo en Modelos:
+            pred_hold ← pred_hold + lr × modelo.predict(X_hold)
+        error_hold ← MSE(y_hold, pred_hold)
+
+        // Early stopping
+        Si error_hold < best_error:
+            best_error ← error_hold
+            no_improve ← 0
+        Sino:
+            no_improve ← no_improve + 1
+            Si no_improve ≥ patience:
+                Imprimir "Parada temprana en iteración" m
+                Romper bucle
+
+    Devolver Modelos
+
+Función PredecirEnsamble(Modelos, X, lr):
+    Igual que en la versión básica
