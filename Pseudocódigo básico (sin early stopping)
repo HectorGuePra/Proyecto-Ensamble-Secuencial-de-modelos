@@ -1,32 +1,33 @@
-Función EntrenarEnsambleSecuencial(X, y, n_estimators, sample_size, lr, seed):
-    Inicializar lista Modelos vacía
-    pred_actual ← vector de ceros del mismo tamaño que y
-    rng ← inicializar generador aleatorio con seed
-    N ← número de filas de X
+Función fit(X, y, n_estimators, sample_size, lr, seed, max_depth=None):
+    1. Inicializar lista Modelos vacía
+    2. init_pred ← media(y)
+    3. pred_actual ← vector donde cada posición vale init_pred  ←───(igual que tu código)
+    4. rng ← InicializarGenerador(seed)
+    5. N ← número de filas de X
 
-    Para m = 1 hasta n_estimators:
-        // 1) Calcular residuo
-        residuo ← y − pred_actual
+    6. Para m = 1 hasta n_estimators:
+         a) residuo ← y − pred_actual
+         b) k ← floor(sample_size × N)
+         c) idx_train ← rng.choice(N, k, replace=False)
+         d) X_sub ← X[idx_train]
+         e) y_sub ← residuo[idx_train]
 
-        // 2) Muestrear subset sin reemplazo
-        k ← floor(sample_size × N)
-        idx_train ← rng.choice(N, k, replace=False)
-        X_sub ← X[idx_train]
-        y_sub ← residuo[idx_train]
+         f) modelo_m ← clonar(estimator_base)
+            Si max_depth no es None:
+                modelo_m.set_params(max_depth = max_depth)
+            Si modelo_m tiene random_state:
+                modelo_m.set_params(random_state = seed)
 
-        // 3) Entrenar modelo en el residuo
-        modelo_m ← clonar(estimator_base)
-        modelo_m.fit(X_sub, y_sub)
-        añadir modelo_m a Modelos
+         g) modelo_m.fit(X_sub, y_sub)
+         h) añadir modelo_m a Modelos
 
-        // 4) Actualizar predicción acumulada
-        pred_actual ← pred_actual + lr × modelo_m.predict(X)
+         i) pred_actual ← pred_actual + lr × modelo_m.predict(X)
 
-    Devolver Modelos
+    7. Devolver Modelos
 
 
-Función PredecirEnsamble(Modelos, X, lr):
-    pred_final ← vector de ceros con longitud = número de filas de X
-    Para cada modelo en Modelos:
-        pred_final ← pred_final + lr × modelo.predict(X)
-    Devolver pred_final
+Función PredecirEnsamble(Modelos, X, lr, init_pred):
+    1. pred_final ← vector donde cada posición vale init_pred  ←───(igual que tu código)
+    2. Para cada modelo en Modelos:
+         pred_final ← pred_final + lr × modelo.predict(X)
+    3. Devolver pred_final
